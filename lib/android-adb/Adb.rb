@@ -143,12 +143,23 @@ module AndroidAdb
         return
       end
       Open3::popen3(path) do |pin, pout, perr|
-        if (!@log.nil? && @log.debug?)
-          perr.each do |line|
-            @log.debug("{stderr} #{line}")
+        Thread.new do
+          begin
+          if (!@log.nil? && @log.debug?)
+            perr.each do |line|
+              @log.debug("{stderr} #{line}")
+            end
+          end
+          rescue => ex
+            if ex.message =~ /stream closed in another thread/
+            else
+              raise ex
+            end
           end
         end
-        yield pout
+        if block
+          block.call(pout)
+        end
       end
     end
 
