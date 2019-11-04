@@ -17,6 +17,8 @@ module AndroidAdb
     # The last adb shell command executed
     attr_accessor :last_command
 
+    attr_accessor :serial
+
     # Contructs an Adb object for issuing commands to the connected device or emulator.
     #
     # If the adb path is not specified in the +opts+ hash it is determined in the following order:
@@ -119,6 +121,7 @@ module AndroidAdb
     def run_adb(args, adb_opts = {}, &block) # :yields: stdout
       adb_arg = ""
       adb_arg += " -s #{adb_opts[:serial]}" unless adb_opts[:serial].nil? || adb_opts[:serial].empty?
+      adb_arg += " -s #{@serial}" if @serial
       adb_arg += " -e" if adb_opts[:emulator]
       adb_arg += " -d" if adb_opts[:device]
       path = "#{@adb_path}#{adb_arg} #{args}"
